@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["three"],
-  experimental: {
-    serverComponentsExternalPackages: []
-  }
+  transpilePackages: ["three"]
 };
 
 export default nextConfig;
