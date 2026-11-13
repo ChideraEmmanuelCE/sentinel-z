@@ -1,91 +1,22 @@
 "use client";
-
-import { useMemo, useState } from "react";
+import {useState} from "react";
 import dynamic from "next/dynamic";
-
-const EscrowVault3D = dynamic(() => import("@/components/canvas/EscrowVault3D"), { ssr: false });
-
-type EscrowState = "Shielded & Locked" | "AI Oracle Auditing" | "Verified & Disbursed";
-
-export default function HomePage() {
-  const [state, setState] = useState<EscrowState>("Shielded & Locked");
-  const [events, setEvents] = useState<string[]>(["Demo vault initialized", "Funds represented in local simulation"]);
-  const [evidence, setEvidence] = useState("");
-  const isReleased = state === "Verified & Disbursed";
-  const statusTone = useMemo(() => isReleased ? "text-emerald-300" : state === "AI Oracle Auditing" ? "text-sky-300" : "text-[#F4B728]", [isReleased, state]);
-
-  function addEvent(message: string) {
-    setEvents((current) => [new Date().toLocaleTimeString(), message].map((item, index) => index === 0 ? item : item).concat(current).slice(0, 7));
-  }
-
-  function audit() {
-    if (!evidence.trim()) return;
-    setState("AI Oracle Auditing");
-    addEvent("Milestone submitted for advisory review");
-    window.setTimeout(() => {
-      setState("Shielded & Locked");
-      addEvent("Demo oracle assessment completed: human authorization required");
-    }, 900);
-  }
-
-  function release() {
-    if (state === "AI Oracle Auditing") return;
-    setState("Verified & Disbursed");
-    addEvent("Demo release explicitly authorized by user");
-  }
-
-  return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col px-5 py-6 md:px-10">
-      <header className="flex items-center justify-between border-b border-white/10 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl border border-[#F4B728]/40 bg-[#F4B728]/10 text-lg font-black text-[#F4B728]">S</div>
-          <div><p className="font-semibold tracking-wide">SENTINEL-Z</p><p className="text-xs text-slate-500">PRIVATE BY DESIGN · DEMO NETWORK</p></div>
-        </div>
-        <span className="rounded-full border border-[#F4B728]/30 px-3 py-1 text-xs text-[#F4B728]">HACKATHON PREVIEW</span>
-      </header>
-
-      <section className="grid flex-1 items-center gap-10 py-12 lg:grid-cols-[1.1fr_.9fr]">
-        <div>
-          <p className="mb-4 text-xs font-semibold tracking-[.28em] text-[#F4B728]">SHIELDED ESCROW PROTOCOL</p>
-          <h1 className="max-w-2xl text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">Trust the work.<br/><span className="text-[#F4B728]">Protect the value.</span></h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">Milestone-based payments with privacy-preserving settlement and an AI-assisted review layer. Your funds stay under explicit escrow authorization—not an AI decision.</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#vault" className="rounded-xl bg-[#F4B728] px-5 py-3 font-semibold text-black transition hover:bg-amber-300">Open demo vault <span aria-hidden>↗</span></a>
-            <a href="https://z.cash/" target="_blank" rel="noreferrer" className="rounded-xl border border-white/15 px-5 py-3 text-slate-200 hover:bg-white/5">Explore Zcash</a>
-          </div>
-          <div className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6">
-            <div><p className="text-2xl font-semibold">01</p><p className="mt-1 text-xs text-slate-500">Shielded escrow</p></div>
-            <div><p className="text-2xl font-semibold">02</p><p className="mt-1 text-xs text-slate-500">AI review</p></div>
-            <div><p className="text-2xl font-semibold">03</p><p className="mt-1 text-xs text-slate-500">Human release</p></div>
-          </div>
-        </div>
-
-        <section id="vault" className="rounded-3xl border border-white/10 bg-[#10141D]/90 p-5 shadow-glow md:p-7">
-          <div className="flex items-center justify-between">
-            <div><p className="text-xs tracking-[.2em] text-slate-500">ESCROW COMMAND CENTER</p><h2 className="mt-1 text-xl font-semibold">Vault 001</h2></div>
-            <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] tracking-wider text-emerald-300">SIMULATED</span>
-          </div>
-          <div className="my-8 overflow-hidden rounded-2xl border border-white/5 bg-[#090c12]">
-            <EscrowVault3D mode={isReleased ? "released" : state === "AI Oracle Auditing" ? "auditing" : "locked"} />
-          </div>
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <div><p className="text-xs text-slate-500">VAULT STATUS</p><p className={`mt-1 font-semibold ${statusTone}`}>{state}</p></div>
-            <div className="text-right"><p className="text-xs text-slate-500">DEMO BALANCE</p><p className="mt-1 text-xl font-semibold">0.25 ZEC</p></div>
-          </div>
-          <label htmlFor="evidence" className="mt-5 block text-xs font-medium text-slate-400">MILESTONE EVIDENCE / DELIVERABLE SUMMARY</label>
-          <textarea id="evidence" value={evidence} onChange={(event) => setEvidence(event.target.value)} placeholder="Describe the milestone delivered…" className="mt-2 min-h-24 w-full resize-y rounded-xl border border-white/10 bg-black/20 p-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-[#F4B728]/50"/>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <button onClick={audit} disabled={!evidence.trim() || state === "AI Oracle Auditing" || isReleased} className="rounded-xl border border-white/15 px-4 py-3 text-sm font-medium hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40">Submit for AI review</button>
-            <button onClick={release} disabled={state === "AI Oracle Auditing" || isReleased} className="rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-black hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-40">Authorize demo release</button>
-          </div>
-          <p className="mt-3 text-[11px] leading-5 text-slate-500">This prototype does not move cryptocurrency. AI review is illustrative and never authorizes a real payment.</p>
-          <div className="mt-6 border-t border-white/10 pt-4">
-            <p className="mb-3 text-xs font-semibold tracking-wider text-slate-400">ACTIVITY LOG</p>
-            <ul className="space-y-2">{events.slice(0,5).map((event, index) => <li key={index} className="flex gap-2 text-xs text-slate-500"><span className="text-[#F4B728]">•</span>{event}</li>)}</ul>
-          </div>
-        </section>
-      </section>
-      <footer className="border-t border-white/10 py-5 text-center text-xs text-slate-600">Sentinel-Z · Privacy-first escrow research prototype · No real funds are held or transferred</footer>
-    </main>
-  );
+const Vault=dynamic(()=>import("@/components/canvas/EscrowVault3D"),{ssr:false});
+function Icon({n}:{n:string}){const p:Record<string,React.ReactNode>={grid:<><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></>,wallet:<><rect x="3" y="5" width="18" height="15" rx="2"/><path d="M3 9h18"/></>,shield:<><path d="M12 3 20 6v5c0 5-3.4 8.3-8 10-4.6-1.7-8-5-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></>,activity:<path d="M3 12h4l3-8 4 16 3-8h4"/>,settings:<><circle cx="12" cy="12" r="3"/><path d="M19 15 21 16l-2 3-2-1-2 1v2h-4v-2l-2-1-2 1-2-3 2-1v-2l-2-1 2-3 2 1 2-1V7h4v2l2 1 2-1 2 3-2 1z"/></>,plus:<path d="M12 5v14m-7-7h14"/>,arrow:<path d="M5 12h14m-6-6 6 6-6 6"/>,lock:<><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 1 1 8 0v3"/></>,clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,check:<path d="m5 12 4 4L19 6"/>,file:<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></>,spark:<path d="m12 3 2 6 6 3-6 2-2 6-2-6-6-2 6-3 2-6Z"/>};return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{p[n]||p.grid}</svg>}
+export default function HomePage(){
+ const [tab,setTab]=useState("Overview"),[mobile,setMobile]=useState(false),[modal,setModal]=useState(false),[title,setTitle]=useState(""),[amount,setAmount]=useState("0.25"),[mode,setMode]=useState<"locked"|"auditing">("locked"),[toast,setToast]=useState("");
+ const [events,setEvents]=useState([{title:"Escrow contract initialized",detail:"Vault SNZ-00421 · Demo environment",time:"14:32:08"},{title:"Milestone evidence received",detail:"Frontend delivery · 4 files attached",time:"14:28:51"},{title:"Shielded address generated",detail:"Orchard-compatible flow · simulated",time:"14:26:13"}]);
+ function ping(s:string){setToast(s);window.setTimeout(()=>setToast(""),3000)}
+ function create(e:React.FormEvent){e.preventDefault();setEvents(v=>[{title:"Demo escrow created",detail:title+" · "+amount+" ZEC · Simulated",time:new Date().toLocaleTimeString("en-GB")},...v]);setModal(false);setTitle("");ping("Demo agreement created. No funds moved.")}
+ function review(){setMode("auditing");setEvents(v=>[{title:"AI advisory review requested",detail:"Human authorization required · No payment action",time:new Date().toLocaleTimeString("en-GB")},...v]);window.setTimeout(()=>{setMode("locked");ping("Review complete. No payment action taken.")},1300)}
+ const nav=[["Overview","grid"],["Escrows","wallet"],["Activity","activity"],["Privacy layer","shield"],["Settings","settings"]];
+ return <main className="shell"><aside className={"sidebar "+(mobile?"open":"")}><div className="brand"><b className="mark">S</b><div><strong>SENTINEL<span>-Z</span></strong><small>PRIVATE SETTLEMENT NETWORK</small></div><button className="mobile-close" onClick={()=>setMobile(false)}>×</button></div><div className="workspace"><b>S</b><div><strong>Sentinel Workspace</strong><small>Personal environment</small></div></div><label className="nav-label">WORKSPACE</label>{nav.map(([name,icon])=><button className={"nav-item "+(tab===name?"active":"")} key={name} onClick={()=>{setTab(name);setMobile(false)}}><Icon n={icon}/>{name}{name==="Escrows"&&<small>03</small>}</button>)}<div className="side-bottom"><div className="network"><small>● NETWORK STATUS</small><b>Demo environment</b><span>Wallet connection unavailable</span><hr/>LOCAL SIMULATION <span>v0.2.0</span></div><div className="owner"><b>CE</b><span>Workspace owner<br/><small>Administrator</small></span></div></div></aside>{mobile&&<button className="scrim" onClick={()=>setMobile(false)}/>}
+ <section className="main"><header><button className="hamb" onClick={()=>setMobile(true)}>☰</button><span>Workspace　/　<b>{tab}</b></span><div><label className="env">● TEST ENVIRONMENT</label><b className="avatar">CE</b></div></header><div className="content"><div className="heading"><div><small>13 NOVEMBER 2026　/　COMMAND CENTER</small><h1>{tab==="Overview"?"Good afternoon.":tab}</h1><p>A clear view of your protected agreements and settlement activity.</p></div><button className="gold-button" onClick={()=>setModal(true)}><Icon n="plus"/> Create escrow</button></div>
+ {tab==="Overview"&&<><div className="stats">{[["TOTAL IN ESCROW","0.25 ZEC","Simulated balance"],["ACTIVE AGREEMENTS","03","Demo workspace"],["AWAITING REVIEW","01","Evidence submitted"],["PRIVACY STATUS","Preview","Not connected"]].map((x,i)=><article key={x[0]}><small>{x[0]}</small><b>{x[1]}</b><footer>{x[2]} <span>{i===3?"ARCHITECTURE ONLY":"DEMO"}</span></footer></article>)}</div><div className="columns"><section className="panel"><div className="panel-head"><div><small>PROTOCOL VISUALIZATION</small><h2>Shielded vault</h2></div><label>INTERACTIVE MODEL</label></div><div className="scene"><div className="scene-grid"/><small>ORCHARD / SHIELDED POOL <span>MODEL VIEW</span></small><Vault mode={mode}/><footer>VAULT ID SNZ-00421 <span>SIMULATION ONLY</span></footer></div><div className="vault-foot"><div><small>CURRENT STATE</small><b>{mode==="auditing"?"Advisory review in progress":"Funds represented as locked"}</b></div><div><small>DEMO VALUE</small><strong>0.25 ZEC</strong></div></div><div className="actions"><button className="outline" disabled={mode==="auditing"} onClick={review}><Icon n="spark"/> Run AI review</button><button className="link" onClick={()=>setTab("Privacy layer")}>Explore privacy architecture <Icon n="arrow"/></button></div></section><section className="panel"><div className="panel-head"><div><small>WORKFLOW SNAPSHOT</small><h2>Agreement overview</h2></div><Icon n="file"/></div><div className="reference"><small>AGREEMENT REFERENCE</small><b>SNZ-2026-00421</b><span>COPY</span></div>{[["B","INITIATED BY","Buyer / project owner","PAYER"],["S","COUNTERPARTY","Service provider","PAYEE"]].map(x=><div className="party" key={x[0]}><strong>{x[0]}</strong><div><small>{x[1]}</small><b>{x[2]}</b><em>Identity details shielded in production</em></div><label>{x[3]}</label></div>)}<div className="milestone-head"><b>Milestone progress</b><span>2 OF 3 STEPS</span></div><div className="progress"><i/></div>{[["Agreement accepted","Terms acknowledged","COMPLETE","check"],["Delivery verification","Evidence submitted","IN REVIEW","clock"],["Settlement authorization","Human approval required","LOCKED","lock"]].map(x=><div className="milestone" key={x[0]}><span><Icon n={x[3]}/></span><div><b>{x[0]}</b><small>{x[1]}</small></div><label>{x[2]}</label></div>)}</section></div><section className="panel recent"><div className="panel-head"><div><small>AUDIT TRAIL</small><h2>Recent activity</h2></div><button className="link" onClick={()=>setTab("Activity")}>View all <Icon n="arrow"/></button></div><div className="table-head"><span>EVENT</span><span>REFERENCE</span><span>TIME</span><span>STATUS</span></div>{events.slice(0,4).map((e,i)=><div className="table-row" key={i}><div><Icon n="check"/><section><b>{e.title}</b><small>{e.detail}</small></section></div><code>SNZ-00421</code><code>{e.time}</code><label>RECORDED</label></div>)}</section></>}
+ {tab==="Escrows"&&<section className="panel full"><small>AGREEMENT MANAGEMENT</small><h2>Your escrow agreements</h2>{["Product design delivery","Website development","Consulting milestone"].map((n,i)=><div className="list-row" key={n}><Icon n="file"/><b>{n}</b><span>{i===0?"0.25":"0.00"} ZEC</span><label>{i===0?"IN REVIEW":"AWAITING SETUP"}</label></div>)}</section>}
+ {tab==="Activity"&&<section className="panel full"><small>AUDIT TRAIL</small><h2>Workspace activity</h2>{events.map((e,i)=><div className="list-row" key={i}><Icon n="activity"/><b>{e.title}</b><span>{e.time}</span><label>RECORDED</label></div>)}</section>}
+ {tab==="Privacy layer"&&<section className="panel full privacy"><small>PROTOCOL ARCHITECTURE</small><h2>Privacy is a property of the settlement layer.</h2><p>Sentinel-Z is designed around shielded Zcash settlement, milestone escrow controls and AI-assisted evidence review. This build is an architecture preview, not a connected wallet or live protocol.</p><div className="flow">{[["01","Agreement","Terms and milestones"],["02","Shielded settlement","Orchard integration planned"],["03","AI review","Evidence with human oversight"],["04","Authorization","Explicit human approval"]].map(x=><article key={x[0]}><small>{x[0]}</small><b>{x[1]}</b><p>{x[2]}</p></article>)}</div><div className="warning"><Icon n="shield"/><div><b>Integration status</b><p>Real Zcash transaction construction, secure signing and on-chain confirmation are not connected. No private payment is being made.</p></div></div></section>}
+ {tab==="Settings"&&<section className="panel full"><small>WORKSPACE CONFIGURATION</small><h2>Integration readiness</h2>{[["Zcash wallet / Orchard signer","Secure transaction construction and signing","Not connected"],["Appwrite backend","Authentication, database and persistent records","Credentials required"],["AI provider","Evidence analysis and milestone assessment","API key required"],["Identity and rate limiting","Authenticated API and abuse protection","Implementation required"]].map(x=><div className="list-row" key={x[0]}><Icon n="shield"/><b>{x[0]}<small>{x[1]}</small></b><label>{x[2]}</label></div>)}</section>}
+ <footer className="footer">© 2026 SENTINEL-Z PROTOCOL <span>● ALL SYSTEMS RUNNING LOCALLY</span> BUILD 0.2.0 · TEST ENVIRONMENT</footer></div></section>
+ {modal&&<div className="backdrop" onClick={()=>setModal(false)}><form className="modal" onSubmit={create} onClick={e=>e.stopPropagation()}><div className="panel-head"><div><small>NEW AGREEMENT</small><h2>Create an escrow</h2></div><button type="button" onClick={()=>setModal(false)}>×</button></div><label>AGREEMENT NAME<input required value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. Product design delivery"/></label><label>DEMO AMOUNT (ZEC)<input required type="number" min=".0001" step=".0001" value={amount} onChange={e=>setAmount(e.target.value)}/></label><p>Local demo record only. No wallet is connected and no funds are transferred.</p><button className="gold-button">Create demo agreement</button></form></div>}{toast&&<div className="toast"><Icon n="check"/>{toast}</div>}</main>
 }
