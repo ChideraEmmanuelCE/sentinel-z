@@ -11,7 +11,7 @@ function Fasteners({ radius, count = 12, depth = 0.09 }: { radius: number; count
     {Array.from({ length: count }).map((_, i) => {
       const a = (i / count) * Math.PI * 2;
       return <group key={i} position={[Math.cos(a) * radius, Math.sin(a) * radius, depth]}>
-        <mesh><cylinderGeometry args={[0.045, 0.045, 0.035, 16]} /><meshStandardMaterial color="#8994a2" metalness={0.88} roughness={0.28} /></mesh>
+        <mesh rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.045, 0.045, 0.035, 16]} /><meshStandardMaterial color="#8994a2" metalness={0.88} roughness={0.28} /></mesh>
         <mesh position={[0, 0, 0.021]}><boxGeometry args={[0.045, 0.006, 0.006]} /><meshStandardMaterial color="#273343" metalness={0.7} /></mesh>
       </group>;
     })}
@@ -30,8 +30,8 @@ function VaultDoor({ mode }: { mode: Mode }) {
       <boxGeometry args={[2.67, 2.37, 0.12]} />
       <meshStandardMaterial color="#66717e" metalness={0.82} roughness={0.32} />
     </mesh>
-    <mesh position={[0, 0, 0.09]}>
-      <cylinderGeometry args={[1.04, 1.04, 0.16, 96]} rotation={[Math.PI / 2, 0, 0]} />
+    <mesh position={[0, 0, 0.09]} rotation={[Math.PI / 2, 0, 0]}>
+      <cylinderGeometry args={[1.04, 1.04, 0.16, 96]} />
       <meshStandardMaterial color="#303c49" metalness={0.9} roughness={0.3} />
     </mesh>
     {/* Concentric machined steel rings */}
@@ -41,7 +41,7 @@ function VaultDoor({ mode }: { mode: Mode }) {
     </mesh>)}
     <Fasteners radius={0.91} count={16} depth={0.225} />
     {/* Inner circular door plate */}
-    <mesh position={[0, 0, 0.2]}>
+    <mesh position={[0, 0, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
       <cylinderGeometry args={[0.69, 0.69, 0.12, 96]} />
       <meshStandardMaterial color="#394654" metalness={0.86} roughness={0.36} />
     </mesh>
@@ -50,11 +50,11 @@ function VaultDoor({ mode }: { mode: Mode }) {
       <meshStandardMaterial color="#b1bac4" metalness={0.92} roughness={0.24} />
     </mesh>
     {/* Central locking hub */}
-    <mesh position={[0, 0, 0.31]}>
+    <mesh position={[0, 0, 0.31]} rotation={[Math.PI / 2, 0, 0]}>
       <cylinderGeometry args={[0.23, 0.23, 0.13, 48]} />
       <meshStandardMaterial color="#8d99a5" metalness={0.95} roughness={0.22} />
     </mesh>
-    <mesh position={[0, 0, 0.39]}>
+    <mesh position={[0, 0, 0.39]} rotation={[Math.PI / 2, 0, 0]}>
       <cylinderGeometry args={[0.13, 0.13, 0.035, 40]} />
       <meshStandardMaterial color={accent} metalness={0.78} roughness={0.24} />
     </mesh>
@@ -64,7 +64,7 @@ function VaultDoor({ mode }: { mode: Mode }) {
         <boxGeometry args={[0.045, 0.48, 0.055]} />
         <meshStandardMaterial color="#9aa5af" metalness={0.92} roughness={0.26} />
       </mesh>
-      <mesh position={[0, 0.61, 0.34]}>
+      <mesh position={[0, 0.61, 0.34]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.065, 0.065, 0.09, 24]} />
         <meshStandardMaterial color="#b2bbc4" metalness={0.95} roughness={0.2} />
       </mesh>
