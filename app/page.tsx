@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+
+const EscrowVault3D = dynamic(() => import("@/components/canvas/EscrowVault3D"), { ssr: false });
 
 type EscrowState = "Shielded & Locked" | "AI Oracle Auditing" | "Verified & Disbursed";
 
@@ -62,7 +65,10 @@ export default function HomePage() {
             <div><p className="text-xs tracking-[.2em] text-slate-500">ESCROW COMMAND CENTER</p><h2 className="mt-1 text-xl font-semibold">Vault 001</h2></div>
             <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[10px] tracking-wider text-emerald-300">SIMULATED</span>
           </div>
-          <div className="relative my-8 grid aspect-[1.35] place-items-center overflow-hidden rounded-2xl border border-white/5 bg-[radial-gradient(circle,rgba(244,183,40,.12),transparent_55%),#090c12]">
+          <div className="my-8 overflow-hidden rounded-2xl border border-white/5 bg-[#090c12]">
+            <EscrowVault3D mode={isReleased ? "released" : state === "AI Oracle Auditing" ? "auditing" : "locked"} />
+          </div>
+          <div className="hidden">
             <div className={`absolute h-52 w-52 rounded-full border border-[#F4B728]/30 ${state === "AI Oracle Auditing" ? "animate-spin border-t-sky-300" : "animate-pulse"}`}/>
             <div className="absolute h-40 w-40 rounded-full border border-[#F4B728]/20"/>
             <div className="relative grid h-28 w-28 place-items-center rounded-3xl border border-[#F4B728]/50 bg-[#F4B728]/10 shadow-[0_0_55px_rgba(244,183,40,.18)]">
