@@ -1,8 +1,101 @@
 "use client";
-import {Canvas} from "@react-three/fiber";
-import {Float,OrbitControls,Sparkles,ContactShadows} from "@react-three/drei";
-import {Suspense} from "react";
+
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
-type Mode="locked"|"auditing"|"released";
-function Core({mode}:{mode:Mode}){const accent=mode==="auditing"?"#83b8e8":mode==="released"?"#67c7a4":"#d9ad62";const color=new THREE.Color(accent);return <group><Float speed={.7} rotationIntensity={.025} floatIntensity={.06}><mesh><cylinderGeometry args={[.78,.78,1.45,8,1,true]}/><meshPhysicalMaterial color="#26374b" metalness={.85} roughness={.2} transparent opacity={.22} side={THREE.DoubleSide}/></mesh>{[.73,-.73].map(y=><mesh key={y} position={[0,y,0]}><cylinderGeometry args={[.78,.78,.035,8]}/><meshStandardMaterial color="#53647a" metalness={.9}/></mesh>)}<mesh><icosahedronGeometry args={[.46,2]}/><meshPhysicalMaterial color={accent} emissive={color} emissiveIntensity={.4} metalness={.5} roughness={.18} transmission={.15}/></mesh>{[.9,1.08,1.27].map((r,i)=><mesh key={r} rotation={[Math.PI/2,i*.12,i*.2]}><torusGeometry args={[r,i===1?.012:.007,12,100]}/><meshBasicMaterial color={accent} transparent opacity={i===1?.8:.35}/></mesh>)}{Array.from({length:8}).map((_,i)=><mesh key={i} position={[Math.cos(i*Math.PI/4)*.8,0,Math.sin(i*Math.PI/4)*.8]}><boxGeometry args={[.08,1.35,.08]}/><meshStandardMaterial color="#8293a8" metalness={.9}/></mesh>)}</Float><mesh rotation={[-Math.PI/2,0,0]} position={[0,-1.12,0]}><ringGeometry args={[1.15,1.55,80]}/><meshBasicMaterial color={accent} transparent opacity={.12} side={THREE.DoubleSide}/></mesh><Sparkles count={mode==="auditing"?65:30} scale={[3.7,3,3.7]} size={1.4} speed={.15} color={accent} opacity={.45}/><ContactShadows position={[0,-1.12,0]} opacity={.3} scale={4} blur={2.5} far={3}/></group>}
-export default function EscrowVault3D({mode="locked"}:{mode?:Mode}){return <div className="h-full min-h-[220px] w-full"><Canvas camera={{position:[3.3,2.1,4.6],fov:36}} dpr={[1,1.5]} gl={{antialias:true,alpha:true}}><ambientLight intensity={.7}/><hemisphereLight args={["#d9e7ff","#17202d",1.15]}/><pointLight position={[3,3,4]} intensity={34} color="#d9ad62"/><pointLight position={[-3,-1,-3]} intensity={18} color="#5d8cbd"/><spotLight position={[0,4,1]} intensity={24} angle={.42} penumbra={.8} color="#f3dfb7"/><Suspense fallback={null}><Core mode={mode}/></Suspense><OrbitControls enablePan={false} minDistance={4} maxDistance={7} minPolarAngle={.65} maxPolarAngle={2.15} autoRotate autoRotateSpeed={.3}/></Canvas></div>}
+
+type Mode = "locked" | "auditing" | "released";
+
+function Fasteners({ radius, count = 12, depth = 0.09 }: { radius: number; count?: number; depth?: number }) {
+  return <group>
+    {Array.from({ length: count }).map((_, i) => {
+      const a = (i / count) * Math.PI * 2;
+      return <group key={i} position={[Math.cos(a) * radius, Math.sin(a) * radius, depth]}>
+        <mesh><cylinderGeometry args={[0.045, 0.045, 0.035, 16]} /><meshStandardMaterial color="#8994a2" metalness={0.88} roughness={0.28} /></mesh>
+        <mesh position={[0, 0, 0.021]}><boxGeometry args={[0.045, 0.006, 0.006]} /><meshStandardMaterial color="#273343" metalness={0.7} /></mesh>
+      </group>;
+    })}
+  </group>;
+}
+
+function VaultDoor({ mode }: { mode: Mode }) {
+  const accent = mode === "auditing" ? "#9dbbd5" : mode === "released" ? "#83b49f" : "#c6a36c";
+  return <group rotation={[0, 0, 0]}>
+    {/* Heavy rectangular safe housing */}
+    <mesh position={[0, 0, -0.22]}>
+      <boxGeometry args={[2.85, 2.55, 0.42]} />
+      <meshStandardMaterial color="#202b38" metalness={0.78} roughness={0.42} />
+    </mesh>
+    <mesh position={[0, 0, 0.015]}>
+      <boxGeometry args={[2.67, 2.37, 0.12]} />
+      <meshStandardMaterial color="#66717e" metalness={0.82} roughness={0.32} />
+    </mesh>
+    <mesh position={[0, 0, 0.09]}>
+      <cylinderGeometry args={[1.04, 1.04, 0.16, 96]} rotation={[Math.PI / 2, 0, 0]} />
+      <meshStandardMaterial color="#303c49" metalness={0.9} roughness={0.3} />
+    </mesh>
+    {/* Concentric machined steel rings */}
+    {[0.98, 0.87, 0.73].map((r, i) => <mesh key={r} position={[0, 0, 0.19 + i * 0.025]}>
+      <torusGeometry args={[r, i === 0 ? 0.045 : 0.018, 12, 96]} />
+      <meshStandardMaterial color={i === 0 ? "#aab3bd" : "#566474"} metalness={0.94} roughness={0.24} />
+    </mesh>)}
+    <Fasteners radius={0.91} count={16} depth={0.225} />
+    {/* Inner circular door plate */}
+    <mesh position={[0, 0, 0.2]}>
+      <cylinderGeometry args={[0.69, 0.69, 0.12, 96]} />
+      <meshStandardMaterial color="#394654" metalness={0.86} roughness={0.36} />
+    </mesh>
+    <mesh position={[0, 0, 0.275]}>
+      <torusGeometry args={[0.58, 0.014, 12, 96]} />
+      <meshStandardMaterial color="#b1bac4" metalness={0.92} roughness={0.24} />
+    </mesh>
+    {/* Central locking hub */}
+    <mesh position={[0, 0, 0.31]}>
+      <cylinderGeometry args={[0.23, 0.23, 0.13, 48]} />
+      <meshStandardMaterial color="#8d99a5" metalness={0.95} roughness={0.22} />
+    </mesh>
+    <mesh position={[0, 0, 0.39]}>
+      <cylinderGeometry args={[0.13, 0.13, 0.035, 40]} />
+      <meshStandardMaterial color={accent} metalness={0.78} roughness={0.24} />
+    </mesh>
+    {/* Three-spoke mechanical locking wheel */}
+    {[0, 2.094, 4.188].map((angle) => <group key={angle} rotation={[0, 0, angle]}>
+      <mesh position={[0, 0.39, 0.34]}>
+        <boxGeometry args={[0.045, 0.48, 0.055]} />
+        <meshStandardMaterial color="#9aa5af" metalness={0.92} roughness={0.26} />
+      </mesh>
+      <mesh position={[0, 0.61, 0.34]}>
+        <cylinderGeometry args={[0.065, 0.065, 0.09, 24]} />
+        <meshStandardMaterial color="#b2bbc4" metalness={0.95} roughness={0.2} />
+      </mesh>
+    </group>)}
+    {/* Door hinges and status indicator */}
+    {[-0.72, 0, 0.72].map((y) => <mesh key={y} position={[1.34, y, -0.02]}>
+      <boxGeometry args={[0.12, 0.24, 0.3]} />
+      <meshStandardMaterial color="#687482" metalness={0.9} roughness={0.3} />
+    </mesh>)}
+    <mesh position={[0, -1.02, 0.09]}>
+      <boxGeometry args={[0.42, 0.055, 0.025]} />
+      <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.12} metalness={0.5} roughness={0.35} />
+    </mesh>
+    {/* Fine engraved perimeter detail */}
+    <mesh position={[0, 0, -0.005]}>
+      <boxGeometry args={[2.48, 2.18, 0.015]} />
+      <meshStandardMaterial color="#9aa5af" metalness={0.7} roughness={0.55} wireframe />
+    </mesh>
+  </group>;
+}
+
+export default function EscrowVault3D({ mode = "locked" }: { mode?: Mode }) {
+  return <div className="h-full min-h-[220px] w-full">
+    <Canvas camera={{ position: [0.25, 0.2, 5.6], fov: 34 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }}>
+      <ambientLight intensity={0.7} />
+      <hemisphereLight args={["#dce5ef", "#18212c", 1.05]} />
+      <directionalLight position={[-3, 4, 5]} intensity={2.1} color="#fff1d7" />
+      <directionalLight position={[4, -2, -3]} intensity={1.2} color="#8298b0" />
+      <VaultDoor mode={mode} />
+      <ContactShadows position={[0, -1.35, -0.3]} opacity={0.28} scale={4.5} blur={2.8} far={3.5} />
+      <OrbitControls enablePan={false} enableZoom={false} minPolarAngle={1.25} maxPolarAngle={1.9} autoRotate autoRotateSpeed={0.12} />
+    </Canvas>
+  </div>;
+}
