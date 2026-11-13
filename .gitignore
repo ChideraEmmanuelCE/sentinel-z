@@ -1,0 +1,23 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+.env
+.env.local
+.env.*.local
+.vercel/
+*.log
+.DS_Store
+
+# Rust build artifacts
+target/
+
+# Database files
+*.db
+*.db-wal
+*.db-shm
+
+# TypeScript cache
+*.tsbuildinfo
