@@ -68,14 +68,6 @@ export default function HomePage() {
           <div className="my-8 overflow-hidden rounded-2xl border border-white/5 bg-[#090c12]">
             <EscrowVault3D mode={isReleased ? "released" : state === "AI Oracle Auditing" ? "auditing" : "locked"} />
           </div>
-          <div className="hidden">
-            <div className={`absolute h-52 w-52 rounded-full border border-[#F4B728]/30 ${state === "AI Oracle Auditing" ? "animate-spin border-t-sky-300" : "animate-pulse"}`}/>
-            <div className="absolute h-40 w-40 rounded-full border border-[#F4B728]/20"/>
-            <div className="relative grid h-28 w-28 place-items-center rounded-3xl border border-[#F4B728]/50 bg-[#F4B728]/10 shadow-[0_0_55px_rgba(244,183,40,.18)]">
-              <span className="text-5xl text-[#F4B728]">{isReleased ? "✓" : state === "AI Oracle Auditing" ? "⌁" : "⬡"}</span>
-            </div>
-            <p className="absolute bottom-5 text-[10px] tracking-[.24em] text-slate-500">ORCHARD-READY ADAPTER · DEMO ONLY</p>
-          </div>
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div><p className="text-xs text-slate-500">VAULT STATUS</p><p className={`mt-1 font-semibold ${statusTone}`}>{state}</p></div>
             <div className="text-right"><p className="text-xs text-slate-500">DEMO BALANCE</p><p className="mt-1 text-xl font-semibold">0.25 ZEC</p></div>
