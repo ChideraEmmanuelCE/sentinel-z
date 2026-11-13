@@ -14,13 +14,3 @@ export function getAppwriteBrowserServices() {
   const client = createAppwriteClient();
   return { client, account: new Account(client), databases: new Databases(client) };
 }
-
-/**
- * Server API keys must only be used in server-only modules. This helper is
- * intentionally not exported to client components.
- */
-export function getAppwriteServerClient(): Client {
-  const apiKey = process.env.APPWRITE_API_KEY;
-  if (!apiKey) throw new Error("APPWRITE_API_KEY is not configured.");
-  return createAppwriteClient().setKey(apiKey);
-}
