@@ -1,46 +1,8 @@
 "use client";
-
-import { Canvas } from "@react-three/fiber";
-import { Float, OrbitControls, Sparkles } from "@react-three/drei";
-import { Suspense } from "react";
-
-type VaultMode = "locked" | "auditing" | "released";
-
-function VaultModel({ mode }: { mode: VaultMode }) {
-  const color = mode === "released" ? "#10B981" : mode === "auditing" ? "#7DD3FC" : "#F4B728";
-  return (
-    <group>
-      <Float speed={mode === "auditing" ? 3 : 1.2} rotationIntensity={0.18} floatIntensity={0.3}>
-        <mesh>
-          <icosahedronGeometry args={[1.15, 1]} />
-          <meshStandardMaterial color={color} wireframe emissive={color} emissiveIntensity={0.6} />
-        </mesh>
-        <mesh scale={0.78}>
-          <icosahedronGeometry args={[1.15, 1]} />
-          <meshStandardMaterial color="#111827" metalness={0.7} roughness={0.25} transparent opacity={0.72} />
-        </mesh>
-        <mesh rotation={[Math.PI / 2, 0, 0]} scale={1.35}>
-          <torusGeometry args={[1.05, 0.012, 12, 96]} />
-          <meshBasicMaterial color={color} />
-        </mesh>
-      </Float>
-      <Sparkles count={mode === "released" ? 90 : 36} scale={4.2} size={2.4} speed={0.35} color={color} />
-    </group>
-  );
-}
-
-export default function EscrowVault3D({ mode = "locked" }: { mode?: VaultMode }) {
-  return (
-    <div className="h-72 w-full overflow-hidden rounded-2xl bg-[#090c12]">
-      <Canvas camera={{ position: [0, 0, 4.8], fov: 42 }} dpr={[1, 1.5]}>
-        <ambientLight intensity={0.6} />
-        <pointLight position={[3, 3, 4]} intensity={28} color="#F4B728" />
-        <pointLight position={[-3, -2, -2]} intensity={12} color="#10B981" />
-        <Suspense fallback={null}>
-          <VaultModel mode={mode} />
-        </Suspense>
-        <OrbitControls enablePan={false} minDistance={3.5} maxDistance={6} />
-      </Canvas>
-    </div>
-  );
-}
+import {Canvas} from "@react-three/fiber";
+import {Float,OrbitControls,Sparkles,ContactShadows} from "@react-three/drei";
+import {Suspense} from "react";
+import * as THREE from "three";
+type Mode="locked"|"auditing"|"released";
+function Core({mode}:{mode:Mode}){const accent=mode==="auditing"?"#83b8e8":mode==="released"?"#67c7a4":"#d9ad62";const color=new THREE.Color(accent);return <group><Float speed={.7} rotationIntensity={.025} floatIntensity={.06}><mesh><cylinderGeometry args={[.78,.78,1.45,8,1,true]}/><meshPhysicalMaterial color="#26374b" metalness={.85} roughness={.2} transparent opacity={.22} side={THREE.DoubleSide}/></mesh>{[.73,-.73].map(y=><mesh key={y} position={[0,y,0]}><cylinderGeometry args={[.78,.78,.035,8]}/><meshStandardMaterial color="#53647a" metalness={.9}/></mesh>)}<mesh><icosahedronGeometry args={[.46,2]}/><meshPhysicalMaterial color={accent} emissive={color} emissiveIntensity={.4} metalness={.5} roughness={.18} transmission={.15}/></mesh>{[.9,1.08,1.27].map((r,i)=><mesh key={r} rotation={[Math.PI/2,i*.12,i*.2]}><torusGeometry args={[r,i===1?.012:.007,12,100]}/><meshBasicMaterial color={accent} transparent opacity={i===1?.8:.35}/></mesh>)}{Array.from({length:8}).map((_,i)=><mesh key={i} position={[Math.cos(i*Math.PI/4)*.8,0,Math.sin(i*Math.PI/4)*.8]}><boxGeometry args={[.08,1.35,.08]}/><meshStandardMaterial color="#8293a8" metalness={.9}/></mesh>)}</Float><mesh rotation={[-Math.PI/2,0,0]} position={[0,-1.12,0]}><ringGeometry args={[1.15,1.55,80]}/><meshBasicMaterial color={accent} transparent opacity={.12} side={THREE.DoubleSide}/></mesh><Sparkles count={mode==="auditing"?65:30} scale={[3.7,3,3.7]} size={1.4} speed={.15} color={accent} opacity={.45}/><ContactShadows position={[0,-1.12,0]} opacity={.3} scale={4} blur={2.5} far={3}/></group>}
+export default function EscrowVault3D({mode="locked"}:{mode?:Mode}){return <div className="h-full min-h-[220px] w-full"><Canvas camera={{position:[3.3,2.1,4.6],fov:36}} dpr={[1,1.5]} gl={{antialias:true,alpha:true}}><ambientLight intensity={.7}/><hemisphereLight args={["#d9e7ff","#17202d",1.15]}/><pointLight position={[3,3,4]} intensity={34} color="#d9ad62"/><pointLight position={[-3,-1,-3]} intensity={18} color="#5d8cbd"/><spotLight position={[0,4,1]} intensity={24} angle={.42} penumbra={.8} color="#f3dfb7"/><Suspense fallback={null}><Core mode={mode}/></Suspense><OrbitControls enablePan={false} minDistance={4} maxDistance={7} minPolarAngle={.65} maxPolarAngle={2.15} autoRotate autoRotateSpeed={.3}/></Canvas></div>}
