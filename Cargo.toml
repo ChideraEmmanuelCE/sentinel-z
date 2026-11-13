@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crates/sentinel-zcash",
+]
+resolver = "2"
+

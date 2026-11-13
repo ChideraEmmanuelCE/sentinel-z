@@ -2,7 +2,6 @@
 
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, ContactShadows } from "@react-three/drei";
-import * as THREE from "three";
 
 type Mode = "locked" | "auditing" | "released";
 
