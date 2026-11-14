@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ID, Query } from "appwrite";
+import { ID, Query } from "node-appwrite";
 import { z } from "zod";
 import {
   getAppwriteAdminServices,
