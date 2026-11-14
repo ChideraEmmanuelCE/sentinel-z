@@ -1,4 +1,4 @@
-import { Account, Client, TablesDB } from "appwrite";
+import { Account, Client, TablesDB } from "node-appwrite";
 
 const endpoint = process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT;
 const projectId = process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID;
