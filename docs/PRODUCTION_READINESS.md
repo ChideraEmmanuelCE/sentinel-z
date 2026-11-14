@@ -15,10 +15,10 @@ This file is an implementation gate, not a claim that the items below are comple
 
 ## Implemented in this branch
 
-- [x] Optional server-side OpenAI Chat Completions integration for milestone assessment.
+- [x] Optional server-side Groq Chat Completions integration using the Groq-hosted `openai/gpt-oss-120b` model.
 - [x] Strict structured-output schema validation and exact criterion matching.
 - [x] Fail-closed human-review fallback when the API key is absent, the provider fails, or output is invalid.
-- [x] Config documentation for `AI_ORACLE_API_KEY` and `AI_ORACLE_MODEL`.
+- [x] Config documentation for `GROQ_API_KEY` and `GROQ_ORACLE_MODEL`.
 
 ## Required before a real pilot
 
@@ -33,8 +33,8 @@ This file is an implementation gate, not a claim that the items below are comple
 
 ### 2. AI evidence review
 
-- [ ] Add `AI_ORACLE_API_KEY` and `AI_ORACLE_MODEL` as Vercel server-side environment variables.
-- [ ] Review the evidence data-processing disclosure and obtain user consent before sending evidence to OpenAI.
+- [ ] Create a Groq API key and add `GROQ_API_KEY` and `GROQ_ORACLE_MODEL` as Vercel server-side environment variables.
+- [ ] Review the evidence data-processing disclosure and obtain user consent before sending evidence to Groq.
 - [ ] Add authentication, abuse controls, rate limits, request budgets, and monitoring to the assessment endpoint.
 - [ ] Add adversarial prompt-injection tests, provider outage tests, and human-review workflows.
 - [ ] Keep all AI decisions advisory; only a separately authenticated human authorization flow may advance escrow state.
