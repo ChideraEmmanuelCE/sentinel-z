@@ -18,7 +18,7 @@
     "react-dom": "19.1.2",
     "three": "0.180.0",
     "zod": "4.1.12",
-    "node-appwrite": "18.2.0"
+    "node-appwrite": "31.2.0"
   },
   "devDependencies": {
     "@types/node": "22.19.1",
