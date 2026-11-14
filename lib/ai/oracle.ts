@@ -1,6 +1,6 @@
 import { oracleAssessmentSchema, type MilestoneRequest, type OracleAssessment } from "./schema";
 
-const OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions";
+const GROQ_CHAT_COMPLETIONS_URL = "https://api.groq.com/openai/v1/chat/completions";
 const REQUEST_TIMEOUT_MS = 20_000;
 
 function humanReview(input: MilestoneRequest): OracleAssessment {
@@ -17,19 +17,18 @@ function humanReview(input: MilestoneRequest): OracleAssessment {
 }
 
 /**
- * OpenAI provides an advisory assessment only. The result is schema-validated
- * and never authorizes, signs, or releases a payment.
+ * Groq-hosted open-weight model assessment is advisory only. The result is
+ * schema-validated and never authorizes, signs, or releases a payment.
  *
- * Evidence is sent to the configured OpenAI API when AI_ORACLE_API_KEY exists.
- * Do not include secrets, viewing keys, wallet seeds, or unnecessary personal
- * data in milestone evidence.
+ * Evidence is sent to Groq when GROQ_API_KEY exists. Do not include secrets,
+ * viewing keys, wallet seeds, or unnecessary personal data in evidence.
  */
 export async function assessMilestone(input: MilestoneRequest): Promise<OracleAssessment> {
-  const apiKey = process.env.AI_ORACLE_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return humanReview(input);
 
   try {
-    const response = await fetch(OPENAI_CHAT_COMPLETIONS_URL, {
+    const response = await fetch(GROQ_CHAT_COMPLETIONS_URL, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -37,7 +36,7 @@ export async function assessMilestone(input: MilestoneRequest): Promise<OracleAs
       },
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
       body: JSON.stringify({
-        model: process.env.AI_ORACLE_MODEL || "gpt-4.1-mini",
+        model: process.env.GROQ_ORACLE_MODEL || "openai/gpt-oss-120b",
         temperature: 0.1,
         response_format: {
           type: "json_schema",
@@ -83,10 +82,7 @@ export async function assessMilestone(input: MilestoneRequest): Promise<OracleAs
           },
           {
             role: "user",
-            content: JSON.stringify({
-              evidence: input.evidence,
-              criteria: input.criteria
-            })
+            content: JSON.stringify({ evidence: input.evidence, criteria: input.criteria })
           }
         ]
       })
@@ -96,13 +92,9 @@ export async function assessMilestone(input: MilestoneRequest): Promise<OracleAs
 
     const payload: unknown = await response.json();
     if (
-      typeof payload !== "object" ||
-      payload === null ||
-      !("choices" in payload) ||
-      !Array.isArray(payload.choices)
-    ) {
-      return humanReview(input);
-    }
+      typeof payload !== "object" || payload === null ||
+      !("choices" in payload) || !Array.isArray(payload.choices)
+    ) return humanReview(input);
 
     const firstChoice: unknown = payload.choices[0];
     if (typeof firstChoice !== "object" || firstChoice === null || !("message" in firstChoice)) {
@@ -118,19 +110,15 @@ export async function assessMilestone(input: MilestoneRequest): Promise<OracleAs
     const assessment = oracleAssessmentSchema.safeParse(parsedJson);
     if (!assessment.success) return humanReview(input);
 
-    // Require an exact, ordered one-to-one mapping to the submitted criteria.
-    // This prevents the model from silently dropping or substituting checks.
+    // Require an exact, ordered one-to-one mapping to submitted criteria.
     if (
       assessment.data.criteria.length !== input.criteria.length ||
       assessment.data.criteria.some((item, index) => item.criterion !== input.criteria[index])
-    ) {
-      return humanReview(input);
-    }
+    ) return humanReview(input);
 
     return assessment.data;
   } catch {
-    // Fail closed on timeouts, provider errors, malformed output, or network
-    // failures. The endpoint must never turn an AI outage into payment approval.
+    // Fail closed on timeouts, provider errors, malformed output, or network failures.
     return humanReview(input);
   }
 }
